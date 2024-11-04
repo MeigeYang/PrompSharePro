@@ -24,6 +24,11 @@ public class Post {
         this.comments = new ArrayList<>();  // Initialize the list of comments
     }
 
+    // Required empty constructor for Firebase
+    public Post() {
+        // Required empty constructor for Firebase
+    }
+
     // Getters and Setters
     public String getPostID() {
         return postID;
@@ -99,5 +104,18 @@ public class Post {
     // Remove a comment from the list
     public void removeComment(Comment comment) {
         this.comments.remove(comment);
+    }
+
+    @Override
+    public String toString() {
+        return "Post{" +
+            "postID='" + postID + '\'' +
+            ", title='" + title + '\'' +
+            ", content='" + content + '\'' +
+            ", timestamp='" + timestamp + '\'' +
+            ", LLMKind='" + LLMKind + '\'' +
+            ", createdBy='" + createdBy + '\'' +
+            ", authorNotes='" + authorNotes + '\'' +
+            '}';
     }
 }
