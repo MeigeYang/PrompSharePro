@@ -10,7 +10,11 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.example.promptsharepro.model.Post;
+
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 public class PostCreationActivity extends AppCompatActivity {
@@ -57,17 +61,16 @@ public class PostCreationActivity extends AppCompatActivity {
 
         // Create new post
         String postId = UUID.randomUUID().toString();
-        Post post = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            post = new Post(
-                postId,          // postID
-                title,          // title
-                content,        // content
-                LocalDateTime.now().toString(),  // timestamp
-                "user123",      // createdBy (TODO: Replace with actual user ID)
-                llmKind         // LLMKind
-            );
-        }
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+
+        Post post = new Post(
+                postId,       // postID
+                title,        // title
+                content,      // content
+                timestamp,    // timestamp
+                "user123",    // createdBy (TODO: Replace with actual user ID)
+                llmKind       // LLMKind
+        );
 
         // Set author notes separately if present
         if (!authorNotes.isEmpty()) {
@@ -76,15 +79,16 @@ public class PostCreationActivity extends AppCompatActivity {
 
         // Save to Firebase
         mDatabase.child("posts").child(postId).setValue(post)
-            .addOnSuccessListener(aVoid -> {
-                Toast.makeText(PostCreationActivity.this, 
-                    "Post created successfully!", Toast.LENGTH_SHORT).show();
-                finish(); // Return to previous screen
-            })
-            .addOnFailureListener(e -> {
-                Toast.makeText(PostCreationActivity.this, 
-                    "Error creating post: " + e.getMessage(), 
-                    Toast.LENGTH_SHORT).show();
-            });
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(PostCreationActivity.this,
+                            "Post created successfully!", Toast.LENGTH_SHORT).show();
+                    finish(); // Return to previous screen
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(PostCreationActivity.this,
+                            "Error creating post: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                });
     }
+
 }
