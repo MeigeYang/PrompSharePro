@@ -74,6 +74,23 @@ public class PostCreationActivity extends AppCompatActivity {
             if (!authorNotes.isEmpty()) {
                 post.setAuthorNotes(authorNotes);
             }
+        // Create new post
+        String postId = UUID.randomUUID().toString();
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+
+        Post post = new Post(
+                postId,       // postID
+                title,        // title
+                content,      // content
+                timestamp,    // timestamp
+                "user123",    // createdBy (TODO: Replace with actual user ID)
+                llmKind       // LLMKind
+        );
+
+        // Set author notes separately if present
+        if (!authorNotes.isEmpty()) {
+            post.setAuthorNotes(authorNotes);
+        }
 
             // Add detailed logging
             Log.d("PostCreation", "Post object created: " + post.toString());
@@ -104,5 +121,18 @@ public class PostCreationActivity extends AppCompatActivity {
             Toast.makeText(this, "Unexpected error: " + e.getMessage(), 
                 Toast.LENGTH_LONG).show();
         }
+        // Save to Firebase
+        mDatabase.child("posts").child(postId).setValue(post)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(PostCreationActivity.this,
+                            "Post created successfully!", Toast.LENGTH_SHORT).show();
+                    finish(); // Return to previous screen
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(PostCreationActivity.this,
+                            "Error creating post: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                });
     }
+
 }
