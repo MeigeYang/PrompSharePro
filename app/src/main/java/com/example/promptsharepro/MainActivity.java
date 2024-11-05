@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.promptsharepro.adapter.PostAdapter;
 import com.example.promptsharepro.model.Post;
+import com.example.promptsharepro.model.User;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.database.*;
 import com.google.android.material.textfield.TextInputEditText;
@@ -34,12 +35,23 @@ public class MainActivity extends AppCompatActivity {
     private SearchHandler searchHandler;
     private TextInputEditText etSearch;
     private List<Post> allPosts = new ArrayList<>();
+    User currUser = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            String username = extras.getString("username");
+            String email = extras.getString("email");
+            String id = extras.getString("ID");
+            String password = extras.getString("password");
+            //make current user
+            currUser = new User(username, email, id, password);
+        }
 
         // Initialize Firebase
         mDatabase = FirebaseDatabase.getInstance().getReference();
