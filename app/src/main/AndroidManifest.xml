@@ -22,11 +22,24 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+        <activity
             android:name=".PostCreationActivity"
             android:exported="false" />
         <activity
             android:name=".PostDetailActivity"
             android:exported="false" />
+        <activity
+            android:name=".SignUpActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name="SearchHandler"
+            android:exported="false" />
+
     </application>
 
 </manifest>
