@@ -48,74 +48,73 @@ public class SignUpActivity extends AppCompatActivity {
         String idStr = idET.getText().toString().trim();
         String username = usernameET.getText().toString().trim();
         String password = passwordET.getText().toString();
-        int id;
 
-        //check if any field is not filled in
-        if(email.isEmpty() || idStr.isEmpty() || username.isEmpty() || password.isEmpty()) {
-            error.setText("Fill in all feilds");
+        // Check if any field is not filled in
+        if (email.isEmpty() || idStr.isEmpty() || username.isEmpty() || password.isEmpty()) {
+            error.setText("Fill in all fields");
             return;
         }
 
-        //check all values are ints
-        try{
-            id = Integer.parseInt(idStr);
-        } catch (NumberFormatException e) {
-            error.setText("Invalid ID: (Can Only Contain Numbers)");
+        // Check ID is 10 digits and contains only numbers
+        if (idStr.length() != 10 || !idStr.matches("\\d+")) {
+            error.setText("Invalid ID: Must be exactly 10 digits and contain only numbers.");
             return;
         }
 
-        //check id is 10 digits
-        if(idStr.length() != 10){
-            error.setText("Invalid ID: (Must be 10 Digits)");
+        // Check if USC email
+        if (!email.endsWith("usc.edu")) {
+            error.setText("Must be a USC email.");
             return;
         }
 
-        //check if usc email
-        if(!email.endsWith("usc.edu")){
-            error.setText("Must be usc email");
-            return;
-        }
+        // Now check to see if email, username, or ID is in the database
+        database.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                boolean userExists = false;
 
-        //check to see if usc email or username is in database
-        findUser(email, username, idStr);
+                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                    User user = userSnapshot.getValue(User.class);
+                    if (user != null) {
+                        if (user.getEmail().equals(email)) {
+                            error.setText("Account already exists with this email.");
+                            userExists = true;
+                            break;
+                        }
+                        if (user.getUsername().equals(username)) {
+                            error.setText("Username already exists.");
+                            userExists = true;
+                            break;
+                        }
+                        if (user.getUscID().equals(idStr)) {
+                            error.setText("ID already in use.");
+                            userExists = true;
+                            break;
+                        }
+                    }
+                }
 
-        //check if account exists or not
-        if(matchingUser != null) {
-            //email exists
-            if(matchingUser.getEmail().equals(email)) {
-                error.setText("Account already exists");
-                matchingUser = null;
-                return;
+                if (!userExists) {
+                    // Add user to database
+                    User newUser = new User(email, username, idStr, password);
+                    database.child(idStr).setValue(newUser);
+
+                    // Change to main screen
+                    Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+                    intent.putExtra("username", newUser.getUsername());
+                    intent.putExtra("email", newUser.getEmail());
+                    intent.putExtra("ID", newUser.getUscID());
+                    intent.putExtra("password", newUser.getPassword());
+                    startActivity(intent);
+                }
             }
 
-            //id exists
-            if(matchingUser.getUscID().equals(id)) {
-                error.setText("ID already in use");
-                matchingUser = null;
-                return;
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(SignUpActivity.this, "Failed to load data", Toast.LENGTH_SHORT).show();
             }
-
-            //username exists
-            if(matchingUser.getUsername().equals(username)) {
-                error.setText("Username already exists");
-                matchingUser = null;
-                return;
-            }
-        }
-
-        //add user to database
-        User newUser = new User(email, username, idStr, password);
-        database.child(idStr).setValue(newUser);
-
-        //change to main screen
-        Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-        intent.putExtra("username", newUser.getUsername());
-        intent.putExtra("email", newUser.getEmail());
-        intent.putExtra("ID", newUser.getUscID());
-        intent.putExtra("password", newUser.getPassword());
-        startActivity(intent);
+        });
     }
-
     private void findUser(String email, String username, String id) {
         database.addValueEventListener(new ValueEventListener() {
             @Override
