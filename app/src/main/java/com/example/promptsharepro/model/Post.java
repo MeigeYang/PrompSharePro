@@ -7,20 +7,20 @@ public class Post {
     private String title;
     private String content;
     private String timestamp;
-    private String LLMKind;
+    private String llmKind;
     private String createdBy; // id of user who create this Event
     private List<Comment> comments;  // List of comments associated with the event
     private String authorNotes;
 
 
     // Constructor
-    public Post(String postID, String title, String content, String timestamp, String createdBy, String LLMKind) {
+    public Post(String postID, String title, String content, String timestamp, String createdBy, String llmKind) {
         this.postID = postID;
         this.title = title;
         this.content = content;
         this.timestamp = timestamp;
         this.createdBy = createdBy;
-        this.LLMKind = LLMKind;
+        this.llmKind = llmKind;
         this.comments = new ArrayList<>();  // Initialize the list of comments
     }
 
@@ -62,12 +62,12 @@ public class Post {
         this.timestamp = timestamp;
     }
 
-    public String getLLMKind() {
-        return LLMKind;
+    public String getLlmKind() {
+        return llmKind;
     }
 
-    public void setLLMKind(String LLMKind) {
-        this.LLMKind = LLMKind;
+    public void setLlmKind(String llmKind) {
+        this.llmKind = llmKind;
     }
 
     public String getCreatedBy() {
@@ -113,7 +113,7 @@ public class Post {
             ", title='" + title + '\'' +
             ", content='" + content + '\'' +
             ", timestamp='" + timestamp + '\'' +
-            ", LLMKind='" + LLMKind + '\'' +
+            ", llmKind='" + llmKind + '\'' +
             ", createdBy='" + createdBy + '\'' +
             ", authorNotes='" + authorNotes + '\'' +
             '}';

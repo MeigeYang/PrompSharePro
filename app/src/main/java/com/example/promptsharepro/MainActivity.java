@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         // Initialize RecyclerView
         rvPosts = findViewById(R.id.rvPosts);
         rvPosts.setLayoutManager(new LinearLayoutManager(this));
-        postAdapter = new PostAdapter();
+        postAdapter = new PostAdapter(currUser.getUscID());
         rvPosts.setAdapter(postAdapter);
 
         // Initialize SearchHandler

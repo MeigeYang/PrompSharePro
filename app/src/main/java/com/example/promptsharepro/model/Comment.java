@@ -7,14 +7,20 @@ public class Comment {
     private String content;
     private String createdBy;
     private String timestamp;
+    private float rating;
 
     // Constructor
-    public Comment(String commentID, String postID, String content, String createdBy, String timestamp) {
+    public Comment() {
+        // Required empty constructor for Firebase
+    }
+
+    public Comment(String commentID, String postID, String content, String createdBy, String timestamp, float rating) {
         this.commentID = commentID;
         this.postID = postID;
         this.content = content;
         this.createdBy = createdBy;
         this.timestamp = timestamp;
+        this.rating = rating;
     }
 
     // Getters and Setters
@@ -32,6 +38,9 @@ public class Comment {
 
     public String getTimestamp() { return timestamp; }
     public void setTimestamp(String timestamp) { this.timestamp = timestamp; }
+
+    public float getRating() { return rating; }
+    public void setRating(float rating) { this.rating = rating; }
 
     // New method to set timestamp using LocalDateTime
     public void setTimestampFromDateTime(LocalDateTime dateTime) {

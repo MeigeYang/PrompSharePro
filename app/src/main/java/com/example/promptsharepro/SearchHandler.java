@@ -5,23 +5,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchHandler {
-    private List<Post> allPosts;
+    private List<Post> posts;
 
     public SearchHandler(List<Post> posts) {
-        this.allPosts = posts != null ? posts : new ArrayList<>();
+        this.posts = posts;
     }
 
-    public List<Post> searchByLLMKind(String llmKind) {
-        if (llmKind == null || llmKind.trim().isEmpty()) {
-            return allPosts;
-        }
+    public void updatePosts(List<Post> newPosts) {
+        this.posts = newPosts;
+    }
 
+    public List<Post> searchByLLMKind(String query) {
         List<Post> results = new ArrayList<>();
-        String searchTerm = llmKind.toLowerCase().trim();
+        String lowercaseQuery = query.toLowerCase();
 
-        for (Post post : allPosts) {
-            if (post.getLLMKind() != null && 
-                post.getLLMKind().toLowerCase().contains(searchTerm)) {
+        for (Post post : posts) {
+            if (post.getLlmKind() != null && 
+                post.getLlmKind().toLowerCase().contains(lowercaseQuery)) {
                 results.add(post);
             }
         }
@@ -30,13 +30,13 @@ public class SearchHandler {
 
     public List<Post> searchByTitle(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
-            return allPosts;
+            return posts;
         }
 
         List<Post> results = new ArrayList<>();
         String searchTerm = keyword.toLowerCase().trim();
 
-        for (Post post : allPosts) {
+        for (Post post : posts) {
             if (post.getTitle() != null && 
                 post.getTitle().toLowerCase().contains(searchTerm)) {
                 results.add(post);
@@ -47,13 +47,13 @@ public class SearchHandler {
 
     public List<Post> fullTextSearch(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
-            return allPosts;
+            return posts;
         }
 
         List<Post> results = new ArrayList<>();
         String searchTerm = keyword.toLowerCase().trim();
 
-        for (Post post : allPosts) {
+        for (Post post : posts) {
             if ((post.getTitle() != null && 
                  post.getTitle().toLowerCase().contains(searchTerm)) ||
                 (post.getContent() != null && 
@@ -64,9 +64,5 @@ public class SearchHandler {
             }
         }
         return results;
-    }
-
-    public void updatePosts(List<Post> newPosts) {
-        this.allPosts = newPosts != null ? newPosts : new ArrayList<>();
     }
 } 
