@@ -7,7 +7,7 @@
     <string name="switch_to_sign_up">Don\'t have an Account? Sign up</string>
     <string name="switch_to_log_in">Already have an account? Log in</string>
     <string name="app_logo">App logo</string>
-    <string name="sign_up">Sign in</string>
+    <string name="sign_up">Sign up</string>
     <string name="add_post">Add Post</string>
     <string name="enter_your_username">enter your username</string>
 </resources>

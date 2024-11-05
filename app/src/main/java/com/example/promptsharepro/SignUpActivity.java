@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.promptsharepro.model.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -71,6 +73,7 @@ public class SignUpActivity extends AppCompatActivity {
         database.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Toast.makeText(SignUpActivity.this, "onDataChange called", Toast.LENGTH_SHORT).show();
                 boolean userExists = false;
 
                 for (DataSnapshot userSnapshot : snapshot.getChildren()) {
@@ -97,16 +100,25 @@ public class SignUpActivity extends AppCompatActivity {
                 if (!userExists) {
                     // Add user to database
                     User newUser = new User(email, username, idStr, password);
-                    database.child(idStr).setValue(newUser);
-
-                    // Change to main screen
-                    Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                    intent.putExtra("username", newUser.getUsername());
-                    intent.putExtra("email", newUser.getEmail());
-                    intent.putExtra("ID", newUser.getUscID());
-                    intent.putExtra("password", newUser.getPassword());
-                    startActivity(intent);
+                    database.child(idStr).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(SignUpActivity.this, "User created successfully", Toast.LENGTH_SHORT).show();
+                                // Change to main screen
+                                Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+                                intent.putExtra("username", newUser.getUsername());
+                                intent.putExtra("email", newUser.getEmail());
+                                intent.putExtra("ID", newUser.getUscID());
+                                intent.putExtra("password", newUser.getPassword());
+                                startActivity(intent);
+                            } else {
+                                Toast.makeText(SignUpActivity.this, "Failed to create user", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
                 }
+
             }
 
             @Override

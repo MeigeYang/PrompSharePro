@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_marginBottom="8dp"
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp">
@@ -15,6 +14,9 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Existing Post Details -->
+
+        <!-- Post Title -->
         <TextView
             android:id="@+id/tvPostTitle"
             android:layout_width="match_parent"
@@ -24,6 +26,7 @@
             android:textColor="@color/material_on_surface_emphasis_high_type"
             tools:text="Post Title"/>
 
+        <!-- LLM Kind -->
         <TextView
             android:id="@+id/tvLlmKind"
             android:layout_width="match_parent"
@@ -33,6 +36,7 @@
             android:textColor="@color/material_on_surface_emphasis_medium"
             tools:text="LLM Kind: GPT-3, BERT"/>
 
+        <!-- Post Content -->
         <TextView
             android:id="@+id/tvPostContent"
             android:layout_width="match_parent"
@@ -41,6 +45,7 @@
             android:textColor="@color/material_on_surface_emphasis_medium"
             tools:text="This is the content of the post. It contains the prompt to be shared."/>
 
+        <!-- Author Notes -->
         <TextView
             android:id="@+id/tvAuthorNotes"
             android:layout_width="match_parent"
@@ -50,6 +55,7 @@
             android:textColor="@color/material_on_surface_emphasis_medium"
             tools:text="Author Notes: Here are some explanations and usage instructions for the prompt."/>
 
+        <!-- Post Author -->
         <TextView
             android:id="@+id/tvPostAuthor"
             android:layout_width="match_parent"
@@ -59,6 +65,7 @@
             android:textColor="@color/material_on_surface_emphasis_medium"
             tools:text="Posted by: John Doe"/>
 
+        <!-- Post Timestamp -->
         <TextView
             android:id="@+id/tvPostTimestamp"
             android:layout_width="match_parent"
@@ -67,6 +74,8 @@
             android:textColor="@color/black"
             tools:text="Posted on: 2023-05-01 14:30"/>
 
+        <!-- Update and Delete Buttons -->
+        <!-- (If you allow users to update/delete their own posts) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -90,6 +99,7 @@
 
         </LinearLayout>
 
+        <!-- Divider -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -97,6 +107,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"/>
 
+        <!-- Comments Section Header -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -105,6 +116,7 @@
             android:textStyle="bold"
             android:textColor="@color/material_on_surface_emphasis_high_type"/>
 
+        <!-- No Comments Text -->
         <TextView
             android:id="@+id/tvNoComments"
             android:layout_width="match_parent"
@@ -114,13 +126,39 @@
             android:visibility="gone"
             android:layout_marginTop="8dp"/>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAddComment"
-            android:layout_width="wrap_content"
+        <!-- Comments RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvComments"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Add Comment"
-            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+            android:nestedScrollingEnabled="false"
+            android:layout_marginTop="8dp"/>
+
+        <!-- New Comment Input Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etNewComment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Add a comment"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPostComment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Post"/>
+        </LinearLayout>
 
     </LinearLayout>
 

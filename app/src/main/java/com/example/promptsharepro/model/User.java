@@ -6,7 +6,11 @@ public class User {
     private String uscID;
     private String password;
 
-    // Constructor
+    // Default constructor required for calls to DataSnapshot.getValue(User.class)
+    public User() {
+    }
+
+    // Constructor with parameters
     public User(String username, String email, String uscID, String password) {
         this.username = username;
         this.email = email;

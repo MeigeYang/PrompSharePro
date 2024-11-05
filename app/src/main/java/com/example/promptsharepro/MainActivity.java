@@ -7,6 +7,7 @@ import android.widget.Toast;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.inputmethod.EditorInfo;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +23,7 @@ import com.example.promptsharepro.model.User;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.database.*;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private TextInputEditText etSearch;
     private List<Post> allPosts = new ArrayList<>();
     User currUser = null;
+    private MaterialButton btnProfile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,12 +82,32 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // Initialize and set up profile button
+        btnProfile = findViewById(R.id.btnProfile);
+        btnProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigateToProfile();
+            }
+        });
+
         // Window insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.topAppBar), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+    }
+
+    private void navigateToProfile() {
+        Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+        if (currUser != null) {
+            intent.putExtra("username", currUser.getUsername());
+            intent.putExtra("email", currUser.getEmail());
+            intent.putExtra("ID", currUser.getUscID());
+            intent.putExtra("password", currUser.getPassword());
+        }
+        startActivity(intent);
     }
 
     private void setupSearch() {

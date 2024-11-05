@@ -64,7 +64,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             tvNoComments = itemView.findViewById(R.id.tvNoComments);
             btnUpdatePost = itemView.findViewById(R.id.btnUpdatePost);
             btnDeletePost = itemView.findViewById(R.id.btnDeletePost);
-            btnAddComment = itemView.findViewById(R.id.btnAddComment);
+            btnAddComment = itemView.findViewById(R.id.btnPostComment);
+
+
         }
 
         void bind(final Post post) {
