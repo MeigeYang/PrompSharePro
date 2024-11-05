@@ -4,12 +4,14 @@ public class User {
     private String username;
     private String email;
     private String uscID;
+    private String password;
 
     // Constructor
-    public User(String username, String email, String uscID) {
+    public User(String username, String email, String uscID, String password) {
         this.username = username;
         this.email = email;
         this.uscID = uscID;
+        this.password = password;
     }
 
     // Getters and Setters
@@ -22,6 +24,7 @@ public class User {
     public String getUscID() { return uscID; }
     public void setUscID(String uscID) { this.uscID = uscID; }
 
-
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 }
 
