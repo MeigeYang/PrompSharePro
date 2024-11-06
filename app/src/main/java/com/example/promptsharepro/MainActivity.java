@@ -24,6 +24,7 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.firebase.database.*;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,6 +40,13 @@ public class MainActivity extends AppCompatActivity {
     private List<Post> allPosts = new ArrayList<>();
     User currUser = null;
     private MaterialButton btnProfile;
+    private MaterialButtonToggleGroup searchToggleGroup;
+    private enum SearchMode {
+        CONTENT,
+        TITLE,
+        LLM
+    }
+    private SearchMode currentSearchMode = SearchMode.CONTENT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +105,13 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        // Initialize toggle group
+        searchToggleGroup = findViewById(R.id.searchToggleGroup);
+        setupSearchToggle();
+        
+        // Select default button
+        searchToggleGroup.check(R.id.btnSearchContent);
     }
 
     private void navigateToProfile() {
@@ -134,15 +149,51 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void setupSearchToggle() {
+        searchToggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (isChecked) {
+                if (checkedId == R.id.btnSearchContent) {
+                    currentSearchMode = SearchMode.CONTENT;
+                } else if (checkedId == R.id.btnSearchTitle) {
+                    currentSearchMode = SearchMode.TITLE;
+                } else if (checkedId == R.id.btnSearchLLM) {
+                    currentSearchMode = SearchMode.LLM;
+                }
+                
+                // Perform search with current query and new mode
+                String currentQuery = etSearch.getText().toString();
+                if (!currentQuery.isEmpty()) {
+                    performSearch(currentQuery);
+                }
+            }
+        });
+    }
+
     private void performSearch(String query) {
         if (query == null || query.trim().isEmpty()) {
             postAdapter.setPosts(allPosts);
             return;
         }
 
-        // Perform full text search by default
-        List<Post> searchResults = searchHandler.fullTextSearch(query);
+        List<Post> searchResults;
+        switch (currentSearchMode) {
+            case TITLE:
+                searchResults = searchHandler.searchByTitle(query);
+                break;
+            case LLM:
+                searchResults = searchHandler.searchByLLMKind(query);
+                break;
+            case CONTENT:
+            default:
+                searchResults = searchHandler.fullTextSearch(query);
+                break;
+        }
+        
         postAdapter.setPosts(searchResults);
+        
+        // Show toast to indicate search mode
+        String modeMessage = "Searching by " + currentSearchMode.toString().toLowerCase();
+        Toast.makeText(this, modeMessage, Toast.LENGTH_SHORT).show();
     }
 
     private void loadPosts() {
@@ -188,16 +239,5 @@ public class MainActivity extends AppCompatActivity {
                     Toast.LENGTH_LONG).show();
             }
         });
-    }
-
-    // Optional: Add methods to switch search modes
-    private void searchByLLMKind(String query) {
-        List<Post> results = searchHandler.searchByLLMKind(query);
-        postAdapter.setPosts(results);
-    }
-
-    private void searchByTitle(String query) {
-        List<Post> results = searchHandler.searchByTitle(query);
-        postAdapter.setPosts(results);
     }
 }

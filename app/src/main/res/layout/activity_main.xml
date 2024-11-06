@@ -67,13 +67,63 @@
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Add this TextView before the MaterialButtonToggleGroup -->
+            <TextView
+                android:id="@+id/tvSearchByLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Search by:"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintTop_toBottomOf="@id/searchInputLayout"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/searchToggleGroup"/>
+
+            <!-- Update the MaterialButtonToggleGroup constraints -->
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/searchToggleGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:singleSelection="true"
+                app:layout_constraintTop_toBottomOf="@id/searchInputLayout"
+                app:layout_constraintStart_toEndOf="@id/tvSearchByLabel">
+
+                <Button
+                    android:id="@+id/btnSearchContent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Content"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:textSize="12sp"/>
+
+                <Button
+                    android:id="@+id/btnSearchTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Title"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:textSize="12sp"/>
+
+                <Button
+                    android:id="@+id/btnSearchLLM"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="LLM"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:textSize="12sp"/>
+
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
             <!-- RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvPosts"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginTop="16dp"
-                app:layout_constraintTop_toBottomOf="@id/searchInputLayout"
+                app:layout_constraintTop_toBottomOf="@id/searchToggleGroup"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

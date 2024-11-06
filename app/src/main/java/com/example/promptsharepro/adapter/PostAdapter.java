@@ -100,11 +100,30 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
         void bind(Post post) {
             tvPostTitle.setText(post.getTitle());
-            tvLlmKind.setText("LLM Kind: " + post.getLlmKind());
+            
+            // Handle LLM Kind display with null check
+            String llmKind = post.getLlmKind();
+            if (llmKind != null && !llmKind.isEmpty()) {
+                tvLlmKind.setText("LLM: " + llmKind);
+                tvLlmKind.setVisibility(View.VISIBLE);
+            } else {
+                tvLlmKind.setText("LLM: Unknown");
+                tvLlmKind.setVisibility(View.VISIBLE);
+            }
+
             tvPostContent.setText(post.getContent());
-            tvAuthorNotes.setText("Author Notes: " + post.getAuthorNotes());
+            
+            // Handle author notes with null check
+            String authorNotes = post.getAuthorNotes();
+            if (authorNotes != null && !authorNotes.isEmpty()) {
+                tvAuthorNotes.setText("Notes: " + authorNotes);
+                tvAuthorNotes.setVisibility(View.VISIBLE);
+            } else {
+                tvAuthorNotes.setVisibility(View.GONE);
+            }
+
             tvPostAuthor.setText("Posted by: " + post.getCreatedBy());
-            tvPostTimestamp.setText("Posted on: " + post.getTimestamp());
+            tvPostTimestamp.setText(post.getTimestamp());
 
             // Show/hide update/delete buttons based on ownership
             boolean isOwner = post.getCreatedBy().equals(currentUserId);

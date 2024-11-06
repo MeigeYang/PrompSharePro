@@ -63,7 +63,7 @@ public class Post {
     }
 
     public String getLlmKind() {
-        return llmKind;
+        return llmKind != null ? llmKind : "Unknown";
     }
 
     public void setLlmKind(String llmKind) {
