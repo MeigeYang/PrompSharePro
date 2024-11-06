@@ -99,7 +99,7 @@ public class SignUpActivity extends AppCompatActivity {
 
                 if (!userExists) {
                     // Add user to database
-                    User newUser = new User(email, username, idStr, password);
+                    User newUser = new User(username, email, idStr, password);
                     database.child(idStr).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {

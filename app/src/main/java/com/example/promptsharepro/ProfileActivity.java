@@ -53,7 +53,7 @@ public class ProfileActivity extends AppCompatActivity {
             String id = extras.getString("ID");
             String password = extras.getString("password");
             // Create current user
-            currUser = new User(email, username, id, password);
+            currUser = new User(username, email, id, password);
         }
 
         // Initialize views
@@ -110,14 +110,22 @@ public class ProfileActivity extends AppCompatActivity {
                 if (exists) {
                     emailET.setError("Email already in use");
                 } else {
-                    // Update email in database
                     currUser.setEmail(newEmail);
-                    database.child(currUser.getUscID()).setValue(currUser).addOnCompleteListener(task -> {
+
+                    // Remove old entry
+                    database.child(currUser.getUscID()).removeValue().addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            Toast.makeText(ProfileActivity.this, "Email updated successfully", Toast.LENGTH_SHORT).show();
-                            emailET.setEnabled(false);
-                            button.setText("Edit");
-                            isEmailEditable = false;
+                            // Add new entry with new ID
+                            database.child(currUser.getUscID()).setValue(currUser).addOnCompleteListener(task1 -> {
+                                if (task1.isSuccessful()) {
+                                    Toast.makeText(ProfileActivity.this, "Email updated successfully", Toast.LENGTH_SHORT).show();
+                                    emailET.setEnabled(false);
+                                    button.setText("Edit");
+                                    isEmailEditable = false;
+                                } else {
+                                    Toast.makeText(ProfileActivity.this, "Failed to update email", Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         } else {
                             Toast.makeText(ProfileActivity.this, "Failed to update email", Toast.LENGTH_SHORT).show();
                         }
@@ -225,14 +233,21 @@ public class ProfileActivity extends AppCompatActivity {
                 if (exists) {
                     usernameET.setError("Username already in use");
                 } else {
-                    // Update username in database
                     currUser.setUsername(newUsername);
-                    database.child(currUser.getUscID()).setValue(currUser).addOnCompleteListener(task -> {
+                    // Remove old entry
+                    database.child(currUser.getUscID()).removeValue().addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            Toast.makeText(ProfileActivity.this, "Username updated successfully", Toast.LENGTH_SHORT).show();
-                            usernameET.setEnabled(false);
-                            button.setText("Edit");
-                            isUsernameEditable = false;
+                            // Add new entry with new ID
+                            database.child(currUser.getUscID()).setValue(currUser).addOnCompleteListener(task1 -> {
+                                if (task1.isSuccessful()) {
+                                    Toast.makeText(ProfileActivity.this, "Username updated successfully", Toast.LENGTH_SHORT).show();
+                                    usernameET.setEnabled(false);
+                                    button.setText("Edit");
+                                    isUsernameEditable = false;
+                                } else {
+                                    Toast.makeText(ProfileActivity.this, "Failed to update username", Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         } else {
                             Toast.makeText(ProfileActivity.this, "Failed to update username", Toast.LENGTH_SHORT).show();
                         }
@@ -362,6 +377,20 @@ public class ProfileActivity extends AppCompatActivity {
     // Callback interface
     private interface OnExistsCallback {
         void onResult(boolean exists);
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        super.onBackPressed();
+        //change to main screen
+        Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
+        //pass through current user data
+        intent.putExtra("username", currUser.getUsername());
+        intent.putExtra("email", currUser.getEmail());
+        intent.putExtra("ID", currUser.getUscID());
+        intent.putExtra("password", currUser.getPassword());
+        startActivity(intent);
     }
 }
 
