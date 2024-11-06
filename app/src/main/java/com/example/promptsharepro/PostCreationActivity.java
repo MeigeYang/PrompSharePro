@@ -24,11 +24,20 @@ public class PostCreationActivity extends AppCompatActivity {
     private TextInputEditText etTitle, etContent, etAuthorNotes;
     private AutoCompleteTextView actvLlmKind;
     private DatabaseReference mDatabase;
+    private String currentUserId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_creation);
+
+        // Get current user ID from intent
+        currentUserId = getIntent().getStringExtra("ID");
+        if (currentUserId == null) {
+            Toast.makeText(this, "Error: User not authenticated", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         // Initialize Firebase
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -69,13 +78,13 @@ public class PostCreationActivity extends AppCompatActivity {
         String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
             .format(new Date());
 
-        // Create post object
+        // Create post object with current user ID
         Post post = new Post(
             postId,
             title,
             content,
             timestamp,
-            "user123", // TODO: Replace with actual user ID
+            currentUserId,  // Use the actual user ID instead of "user123"
             llmKind
         );
         

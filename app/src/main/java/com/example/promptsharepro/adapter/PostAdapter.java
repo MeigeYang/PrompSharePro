@@ -1,6 +1,7 @@
 package com.example.promptsharepro.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
@@ -24,6 +25,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.example.promptsharepro.UpdatePostActivity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -125,10 +127,47 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             tvPostAuthor.setText("Posted by: " + post.getCreatedBy());
             tvPostTimestamp.setText(post.getTimestamp());
 
-            // Show/hide update/delete buttons based on ownership
-            boolean isOwner = post.getCreatedBy().equals(currentUserId);
-            btnUpdatePost.setVisibility(isOwner ? View.VISIBLE : View.GONE);
-            btnDeletePost.setVisibility(isOwner ? View.VISIBLE : View.GONE);
+            // Check if the current user is the author of the post
+            boolean isAuthor = currentUserId != null && 
+                             currentUserId.equals(post.getCreatedBy());
+            
+            // Show/hide update and delete buttons based on ownership
+            btnUpdatePost.setVisibility(isAuthor ? View.VISIBLE : View.GONE);
+            btnDeletePost.setVisibility(isAuthor ? View.VISIBLE : View.GONE);
+
+            // Only set click listeners if the user is the author
+            if (isAuthor) {
+                btnUpdatePost.setOnClickListener(v -> {
+                    Context context = itemView.getContext();
+                    Intent intent = new Intent(context, UpdatePostActivity.class);
+                    intent.putExtra("postId", post.getPostID());
+                    intent.putExtra("currentUserId", currentUserId);
+                    context.startActivity(intent);
+                });
+
+                btnDeletePost.setOnClickListener(v -> {
+                    // Show confirmation dialog before deleting
+                    android.app.AlertDialog.Builder builder = 
+                        new android.app.AlertDialog.Builder(itemView.getContext());
+                    builder.setTitle("Delete Post")
+                        .setMessage("Are you sure you want to delete this post?")
+                        .setPositiveButton("Delete", (dialog, which) -> {
+                            // Delete the post
+                            mDatabase.child("posts").child(post.getPostID())
+                                .removeValue()
+                                .addOnSuccessListener(aVoid -> 
+                                    Toast.makeText(itemView.getContext(),
+                                        "Post deleted successfully",
+                                        Toast.LENGTH_SHORT).show())
+                                .addOnFailureListener(e -> 
+                                    Toast.makeText(itemView.getContext(),
+                                        "Failed to delete post: " + e.getMessage(),
+                                        Toast.LENGTH_SHORT).show());
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+                });
+            }
 
             setupCommentSection(post);
         }

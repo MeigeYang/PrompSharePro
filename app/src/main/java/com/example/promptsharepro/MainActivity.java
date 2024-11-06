@@ -87,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
         ExtendedFloatingActionButton fabAddPost = findViewById(R.id.fabAddPost);
         fabAddPost.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, PostCreationActivity.class);
+            intent.putExtra("ID", currUser.getUscID());
             startActivity(intent);
         });
 
