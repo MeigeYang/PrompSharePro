@@ -27,8 +27,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.example.promptsharepro.UpdatePostActivity;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
@@ -185,24 +187,19 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     return;
                 }
 
-                // Then validate content
-                if (content.isEmpty()) {
-                    Toast.makeText(itemView.getContext(), 
-                        "Please write a comment", 
-                        Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
                 String commentId = mDatabase.child("comments").push().getKey();
                 if (commentId == null) return;
 
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String formattedDate = sdf.format(new Date());
+
                 Comment comment = new Comment(
-                    commentId,
-                    post.getPostID(),
-                    content,
-                    currentUserId,
-                    LocalDateTime.now().toString(),
-                    rating
+                        commentId,
+                        post.getPostID(),
+                        content,
+                        currentUserId,
+                        formattedDate,
+                        rating
                 );
 
                 mDatabase.child("comments").child(commentId).setValue(comment)
