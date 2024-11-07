@@ -41,7 +41,7 @@ public class LoginActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance().getReference("users");
     }
 
-    public void logIn(View view) {
+    public void logIn(View view) throws InterruptedException {
         //get user inputs
         String email = emailET.getText().toString().trim();
         String password = passwordET.getText().toString();
@@ -55,8 +55,14 @@ public class LoginActivity extends AppCompatActivity {
         //check if account exists
         findUser(email);
 
-        //account not found
+        //function didn't run properly
         if(matchingUser == null)
+        {
+//            error.setText("null");
+            return;
+        }
+        //account not found
+        if(matchingUser.getEmail().isEmpty())
         {
             error.setText("Email Not Found");
             return;
@@ -65,6 +71,7 @@ public class LoginActivity extends AppCompatActivity {
         //compare if valid password
         if(!matchingUser.getPassword().equals(password)) {
             error.setText("Password Doesn't match");
+            matchingUser = null;
             return;
         }
 
@@ -95,6 +102,9 @@ public class LoginActivity extends AppCompatActivity {
                             return;
                         }
                     }
+                }
+                if(matchingUser == null) {
+                    matchingUser = new User("", "", "", "");
                 }
             }
 
