@@ -4,7 +4,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 
 import com.example.promptsharepro.LoginActivity;
-import com.example.promptsharepro.MainActivity;
 import com.example.promptsharepro.R;
 
 import org.junit.Rule;
@@ -20,7 +19,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.*;
  * BasicFeatureTest performs UI tests on the Login functionality of the application.
  */
 @RunWith(AndroidJUnit4.class)
-public class BasicFeatureTest {
+public class LoginUITest {
 
     @Rule
     public ActivityScenarioRule<LoginActivity> activityRule =
@@ -44,8 +43,6 @@ public class BasicFeatureTest {
         onView(withId(R.id.btnLogin))
                 .perform(click());
 
-        // Verify that the user is navigated to the home screen by checking for btnProfile
-        //onView(withId(R.id.btnProfile))
-        //       .check(matches(isDisplayed()));
+        
     }
 }
