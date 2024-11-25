@@ -17,6 +17,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+/**
+ * Handles user login functionality.
+ */
 public class LoginActivity extends AppCompatActivity {
 
     private DatabaseReference database;
@@ -30,93 +33,103 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        //initialize
-        emailET = (EditText) findViewById(R.id.etLoginEmail);
-        passwordET = (EditText) findViewById(R.id.etLoginPassword);
-        error = (TextView) findViewById(R.id.loginError);
+        // Initialize UI components
+        emailET = findViewById(R.id.etLoginEmail);
+        passwordET = findViewById(R.id.etLoginPassword);
+        error = findViewById(R.id.loginError);
         error.setText("");
-        matchingUser = null;
 
-        //get users database
+        // Initialize Firebase reference
         database = FirebaseDatabase.getInstance().getReference("users");
     }
 
-    public void logIn(View view) throws InterruptedException {
-        //get user inputs
+    /**
+     * Initiates the login process when the login button is clicked.
+     *
+     * @param view The view that was clicked.
+     */
+    public void logIn(View view) {
+        // Get user inputs
         String email = emailET.getText().toString().trim();
         String password = passwordET.getText().toString();
 
-        //check if any field is not filled in
-        if(email.isEmpty() || password.isEmpty()) {
-            error.setText("Fill in all feilds");
+        // Input validation
+        if (email.isEmpty() || password.isEmpty()) {
+            error.setText("Fill in all fields");
             return;
         }
 
-        //check if account exists
-        findUser(email);
+        // Disable the login button to prevent multiple clicks
+        view.setEnabled(false);
 
-        //function didn't run properly
-        if(matchingUser == null)
-        {
-//            error.setText("null");
-            return;
-        }
-        //account not found
-        if(matchingUser.getEmail().isEmpty())
-        {
-            error.setText("Email Not Found");
-            return;
-        }
-
-        //compare if valid password
-        if(!matchingUser.getPassword().equals(password)) {
-            error.setText("Password Doesn't match");
-            matchingUser = null;
-            return;
-        }
-
-        error.setText("");
-        //set user to current user
-        User currUser = matchingUser;
-
-        //change to main screen
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        //pass through current user data
-        intent.putExtra("username", currUser.getUsername());
-        intent.putExtra("email", currUser.getEmail());
-        intent.putExtra("ID", currUser.getUscID());
-        intent.putExtra("password", currUser.getPassword());
-        startActivity(intent);
+        // Check if account exists and validate credentials
+        findUser(email, password, view);
     }
 
-    private void findUser(String email) {
-        database.addValueEventListener(new ValueEventListener() {
+    /**
+     * Searches for the user in Firebase and validates credentials.
+     *
+     * @param email    The user's email.
+     * @param password The user's password.
+     * @param view     The login button view to re-enable in case of failure.
+     */
+    private void findUser(String email, String password, View view) {
+        database.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                boolean userFound = false;
                 for (DataSnapshot userSnapshot : snapshot.getChildren()) {
                     User user = userSnapshot.getValue(User.class);
-                    if (user != null) {
-                        //check if it's the user signing in
-                        if(user.getEmail().equals(email)) {
-                            matchingUser = user;
-                            return;
+                    if (user != null && user.getEmail().equals(email)) {
+                        userFound = true;
+                        if (user.getPassword().equals(password)) {
+                            // Credentials are valid; proceed to MainActivity
+                            navigateToMainActivity(user);
+                        } else {
+                            // Password mismatch
+                            error.setText("Password doesn't match");
+                            view.setEnabled(true);
                         }
+                        return;
                     }
                 }
-                if(matchingUser == null) {
-                    matchingUser = new User("", "", "", "");
+                if (!userFound) {
+                    // Email not found
+                    error.setText("Email not found");
+                    view.setEnabled(true);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(LoginActivity.this, "Failed to load data", Toast.LENGTH_SHORT).show();
+                view.setEnabled(true);
             }
         });
     }
 
+    /**
+     * Navigates to MainActivity with the user's data.
+     *
+     * @param user The authenticated user.
+     */
+    private void navigateToMainActivity(User user) {
+        error.setText("");
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        intent.putExtra("username", user.getUsername());
+        intent.putExtra("email", user.getEmail());
+        intent.putExtra("ID", user.getUscID());
+        intent.putExtra("password", user.getPassword());
+        startActivity(intent);
+        finish(); // Optional: Finish LoginActivity so it's removed from the back stack
+    }
+
+    /**
+     * Navigates to SignUpActivity when the sign-up TextView is clicked.
+     *
+     * @param view The view that was clicked.
+     */
     public void tvSignUpClick(View view) {
-        //change to sign up
         Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
         startActivity(intent);
     }
