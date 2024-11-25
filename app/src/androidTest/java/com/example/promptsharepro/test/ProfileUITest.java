@@ -88,7 +88,7 @@ public class ProfileUITest {
                 .perform(click());
 
         // Step 4: Clear the user ID field and enter a new user ID
-        String newUserId = "newTestUserID";
+        String newUserId = "7608159078";
         onView(withId(R.id.etId))
                 .perform(clearText(), typeText(newUserId), closeSoftKeyboard());
 
