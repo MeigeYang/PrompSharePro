@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     User currUser = null;
     private MaterialButton btnProfile;
     private MaterialButtonToggleGroup searchToggleGroup;
+    private MaterialButton btnRankingSubscriptions;
     private enum SearchMode {
         CONTENT,
         TITLE,
@@ -100,6 +101,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Initialize and set up the Ranking/Subscriptions button
+        btnRankingSubscriptions = findViewById(R.id.btnRankingSubscriptions);
+        btnRankingSubscriptions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigateToRankingSubscriptions();
+            }
+        });
+
         // Window insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.topAppBar), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -123,6 +133,11 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("ID", currUser.getUscID());
             intent.putExtra("password", currUser.getPassword());
         }
+        startActivity(intent);
+    }
+
+    private void navigateToRankingSubscriptions() {
+        Intent intent = new Intent(MainActivity.this, RankingSubscriptionsActivity.class);
         startActivity(intent);
     }
 
