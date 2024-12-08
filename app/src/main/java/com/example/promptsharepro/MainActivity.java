@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private MaterialButton btnProfile;
     private MaterialButtonToggleGroup searchToggleGroup;
     private MaterialButton btnRankingSubscriptions;
+    private MaterialButton btnFavorites;
     private enum SearchMode {
         CONTENT,
         TITLE,
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         // Initialize RecyclerView
         rvPosts = findViewById(R.id.rvPosts);
         rvPosts.setLayoutManager(new LinearLayoutManager(this));
-        postAdapter = new PostAdapter(currUser.getUscID());
+        postAdapter = new PostAdapter(currUser.getUscID(), this);
         rvPosts.setAdapter(postAdapter);
 
         // Initialize SearchHandler
@@ -110,6 +111,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Initialize and set up the Favorites button
+        btnFavorites = findViewById(R.id.btnFavorites);
+        btnFavorites.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigateToFavorites();
+            }
+        });
+
         // Window insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.topAppBar), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -138,6 +148,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void navigateToRankingSubscriptions() {
         Intent intent = new Intent(MainActivity.this, RankingSubscriptionsActivity.class);
+        startActivity(intent);
+    }
+
+    private void navigateToFavorites() {
+        Intent intent = new Intent(MainActivity.this, FavoriteActivity.class);
+        if (currUser != null) {
+            intent.putExtra("userID", currUser.getUscID());
+        }
         startActivity(intent);
     }
 

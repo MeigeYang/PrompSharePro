@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Post Title with Favorite Button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvPostTitle"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/material_on_surface_emphasis_high_type"
+                tools:text="Post Title"/>
+
+            <ImageButton
+                android:id="@+id/btnFavorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_heart_outline"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Favorite"
+                android:tint="@color/red"/>
+        </LinearLayout>
+
+        <!-- LLM Kind -->
+        <TextView
+            android:id="@+id/tvLlmKind"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="italic"
+            android:textColor="@color/material_on_surface_emphasis_medium"
+            android:layout_marginTop="4dp"
+            tools:text="LLM: GPT-4"/>
+
+        <!-- Post Content -->
+        <TextView
+            android:id="@+id/tvPostContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/material_on_surface_emphasis_medium"
+            tools:text="This is the content of the post."/>
+
+        <!-- Optionally, you can include other elements like Post Author and Timestamp if desired -->
+        <TextView
+            android:id="@+id/tvPostAuthor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/material_on_surface_emphasis_medium"
+            android:layout_marginTop="8dp"
+            tools:text="Posted by: John Doe"/>
+
+        <TextView
+            android:id="@+id/tvPostTimestamp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/material_on_surface_emphasis_medium"
+            tools:text="2024-12-08 14:09:35"/>
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

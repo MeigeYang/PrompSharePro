@@ -50,6 +50,10 @@
                 android:value="" />
         </activity>
         <activity android:name=".RankingSubscriptionsActivity" />
+        <activity
+            android:name=".FavoriteActivity"
+            android:exported="false"
+            android:label="Favorites" />
 
     </application>
 

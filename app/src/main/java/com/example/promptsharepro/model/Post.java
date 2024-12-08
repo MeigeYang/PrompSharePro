@@ -11,6 +11,7 @@ public class Post {
     private String createdBy; // id of user who create this Event
     private List<Comment> comments;  // List of comments associated with the event
     private String authorNotes;
+    private boolean favorited;  // Add this field
 
 
     // Constructor
@@ -92,6 +93,14 @@ public class Post {
 
     public void setAuthorNotes(String authorNotes) {
         this.authorNotes = authorNotes;
+    }
+
+    public boolean isFavorited() {
+        return favorited;
+    }
+
+    public void setFavorited(boolean favorited) {
+        this.favorited = favorited;
     }
 
 

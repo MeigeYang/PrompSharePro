@@ -2,45 +2,93 @@ package com.example.promptsharepro.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ImageButton;
 import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.promptsharepro.R;
+import com.example.promptsharepro.UpdatePostActivity;
 import com.example.promptsharepro.model.Comment;
+import com.example.promptsharepro.model.Favorite;
 import com.example.promptsharepro.model.Post;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.FirebaseDatabase; 
 import com.google.firebase.database.ValueEventListener;
-import com.example.promptsharepro.UpdatePostActivity;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
     private List<Post> posts = new ArrayList<>();
     private String currentUserId;
     private DatabaseReference mDatabase;
+    private Set<String> favoritePostIDs = new HashSet<>();
+    private Context context;
 
-    public PostAdapter(String currentUserId) {
+    public PostAdapter(String currentUserId, Context context) {
         this.currentUserId = currentUserId;
+        this.context = context;
         this.mDatabase = FirebaseDatabase.getInstance().getReference();
+        loadUserFavorites();
+    }
+
+    /**
+     * Loads the current user's favorite post IDs from Firebase.
+     */
+    private void loadUserFavorites() {
+        if (currentUserId == null) return;
+
+        mDatabase.child("favorites").child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                favoritePostIDs.clear();
+                if (snapshot.exists()) {
+                    Favorite favorite = snapshot.getValue(Favorite.class);
+                    if (favorite != null && favorite.getFavoritePostIDs() != null) {
+                        favoritePostIDs.addAll(favorite.getFavoritePostIDs().keySet());
+                    }
+                }
+                notifyDataSetChanged(); // Update the adapter to reflect favorite status
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Toast.makeText(context, "Failed to load favorites.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /**
+     * Updates the adapter with a new list of favorite post IDs.
+     * Call this method whenever the favorite list changes.
+     */
+    public void updateFavoriteList(Set<String> newFavoritePostIDs) {
+        favoritePostIDs.clear();
+        favoritePostIDs.addAll(newFavoritePostIDs);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -62,19 +110,29 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         return posts.size();
     }
 
+    /**
+     * Sets the list of posts and refreshes the adapter.
+     *
+     * @param posts List of Post objects.
+     */
     public void setPosts(List<Post> posts) {
         this.posts = posts;
         notifyDataSetChanged();
     }
 
+    /**
+     * ViewHolder class for individual posts.
+     */
     class PostViewHolder extends RecyclerView.ViewHolder {
-        private TextView tvPostTitle, tvLlmKind, tvPostContent, tvAuthorNotes, 
-                        tvPostAuthor, tvPostTimestamp, tvNoComments;
-        private MaterialButton btnUpdatePost, btnDeletePost, btnPostComment;
-        private TextInputEditText etNewComment;
-        private RatingBar rbNewCommentRating;
-        private RecyclerView rvComments;
-        private CommentAdapter commentAdapter;
+        private final MaterialTextView tvPostTitle, tvLlmKind, tvPostContent, tvAuthorNotes, 
+                            tvPostAuthor, tvPostTimestamp, tvNoComments;
+        private final MaterialButton btnUpdatePost, btnDeletePost, btnPostComment;
+        private final TextInputEditText etNewComment;
+        private final RatingBar rbNewCommentRating;
+        private final RecyclerView rvComments;
+        private final CommentAdapter commentAdapter;
+        private final ImageButton btnFavorite;
+        private Post post;
 
         PostViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -95,6 +153,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             etNewComment = itemView.findViewById(R.id.etNewComment);
             rbNewCommentRating = itemView.findViewById(R.id.rbNewCommentRating);
             rvComments = itemView.findViewById(R.id.rvComments);
+            btnFavorite = itemView.findViewById(R.id.btnFavorite); // Favorite button
             
             // Initialize RecyclerView for comments
             rvComments.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
@@ -102,7 +161,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             rvComments.setAdapter(commentAdapter);
         }
 
+        /**
+         * Binds the post data to the views.
+         *
+         * @param post The Post object to bind.
+         */
         void bind(Post post) {
+            this.post = post;
             tvPostTitle.setText(post.getTitle());
             
             // Handle LLM Kind display with null check
@@ -169,11 +234,114 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                         .setNegativeButton("Cancel", null)
                         .show();
                 });
+            } else {
+                // Hide buttons if not the author
+                btnUpdatePost.setVisibility(View.GONE);
+                btnDeletePost.setVisibility(View.GONE);
             }
+
+            // Handle Favorite Button
+            handleFavoriteButton(post);
 
             setupCommentSection(post);
         }
 
+        /**
+         * Sets up the favorite button's state and click listener.
+         *
+         * @param post The Post object.
+         */
+        private void handleFavoriteButton(Post post) {
+            // Set initial favorite icon state
+            if (favoritePostIDs.contains(post.getPostID())) {
+                btnFavorite.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_heart_filled));
+                post.setFavorited(true);
+            } else {
+                btnFavorite.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_heart_outline));
+                post.setFavorited(false);
+            }
+
+            // Set click listener for favorite button
+            btnFavorite.setOnClickListener(v -> {
+                if (currentUserId == null) {
+                    Toast.makeText(context, "You must be logged in to favorite posts.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                boolean isNowFavorited = !favoritePostIDs.contains(post.getPostID());
+                if (isNowFavorited) {
+                    addPostToFavorites(post.getPostID());
+                } else {
+                    removePostFromFavorites(post.getPostID());
+                }
+            });
+        }
+
+        /**
+         * Updates the favorite icon based on favorite status.
+         *
+         * @param isFavorited True if the post is favorited, false otherwise.
+         */
+        private void updateFavoriteIcon(boolean isFavorited) {
+            if (isFavorited) {
+                btnFavorite.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_heart_filled));
+            } else {
+                btnFavorite.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_heart_outline));
+            }
+
+            // Optional: Provide haptic feedback
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                btnFavorite.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+            }
+        }
+
+        /**
+         * Adds a post ID to the user's favorites in Firebase.
+         *
+         * @param postID The ID of the post to add.
+         */
+        private void addPostToFavorites(String postID) {
+            mDatabase.child("favorites").child(currentUserId).child("favoritePostIDs").child(postID)
+                .setValue(postID)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        favoritePostIDs.add(postID);
+                        btnFavorite.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_heart_filled));
+                        Toast.makeText(context, "Post added to favorites.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, "Failed to add to favorites.", Toast.LENGTH_SHORT).show();
+                        // Revert the favorite status in the UI
+                        btnFavorite.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_heart_outline));
+                    }
+                });
+        }
+
+        /**
+         * Removes a post ID from the user's favorites in Firebase.
+         *
+         * @param postID The ID of the post to remove.
+         */
+        private void removePostFromFavorites(String postID) {
+            mDatabase.child("favorites").child(currentUserId).child("favoritePostIDs").child(postID)
+                .removeValue()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        favoritePostIDs.remove(postID);
+                        btnFavorite.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_heart_outline));
+                        Toast.makeText(context, "Post removed from favorites.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, "Failed to remove from favorites.", Toast.LENGTH_SHORT).show();
+                        // Revert the favorite status in the UI
+                        btnFavorite.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_heart_filled));
+                    }
+                });
+        }
+
+        /**
+         * Sets up the comment section for each post.
+         *
+         * @param post The Post object.
+         */
         private void setupCommentSection(Post post) {
             btnPostComment.setOnClickListener(v -> {
                 String content = etNewComment.getText().toString().trim();
@@ -181,8 +349,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
                 // Validate rating first
                 if (rating == 0) {
-                    Toast.makeText(itemView.getContext(), 
+                    Toast.makeText(context, 
                         "Please provide a rating before commenting", 
+                        Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (content.isEmpty()) {
+                    Toast.makeText(context, 
+                        "Please enter a comment", 
                         Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -206,12 +381,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     .addOnSuccessListener(aVoid -> {
                         etNewComment.setText("");
                         rbNewCommentRating.setRating(0);
-                        Toast.makeText(itemView.getContext(), 
+                        Toast.makeText(context, 
                             "Comment posted successfully", 
                             Toast.LENGTH_SHORT).show();
                     })
                     .addOnFailureListener(e -> 
-                        Toast.makeText(itemView.getContext(), 
+                        Toast.makeText(context, 
                             "Failed to post comment", 
                             Toast.LENGTH_SHORT).show()
                     );
@@ -228,6 +403,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             loadComments(post.getPostID());
         }
 
+        /**
+         * Loads comments related to a specific post.
+         *
+         * @param postId The ID of the post.
+         */
         private void loadComments(String postId) {
             mDatabase.child("comments")
                     .orderByChild("postID")
@@ -248,7 +428,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) {
-                            Toast.makeText(itemView.getContext(),
+                            Toast.makeText(context,
                                 "Error loading comments: " + error.getMessage(),
                                 Toast.LENGTH_SHORT).show();
                         }
