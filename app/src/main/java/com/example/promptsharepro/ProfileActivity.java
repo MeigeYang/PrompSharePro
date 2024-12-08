@@ -2,12 +2,17 @@ package com.example.promptsharepro;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.promptsharepro.adapter.PostAdapter;
+import com.example.promptsharepro.model.Post;
 import com.example.promptsharepro.model.User;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -18,6 +23,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -33,6 +43,11 @@ public class ProfileActivity extends AppCompatActivity {
     private boolean isIdEditable = false;
     private boolean isUsernameEditable = false;
     private boolean isPasswordEditable = false;
+
+    private DatabaseReference postDatabase;
+    private RecyclerView rvPosts;
+    private PostAdapter postAdapter;
+    private List<Post> allPosts = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +85,18 @@ public class ProfileActivity extends AppCompatActivity {
         idET.setText(currUser.getUscID());
         usernameET.setText(currUser.getUsername());
         passwordET.setText(currUser.getPassword());
+
+        // Get Post database reference
+        postDatabase = FirebaseDatabase.getInstance().getReference();
+
+        // Initialize RecyclerView
+        rvPosts = findViewById(R.id.rvPosts);
+        rvPosts.setLayoutManager(new LinearLayoutManager(this));
+        postAdapter = new PostAdapter(currUser.getUscID(), this);
+        rvPosts.setAdapter(postAdapter);
+
+        // Load posts
+        loadPosts();
     }
 
     // Edit Email
@@ -391,6 +418,42 @@ public class ProfileActivity extends AppCompatActivity {
         intent.putExtra("ID", currUser.getUscID());
         intent.putExtra("password", currUser.getPassword());
         startActivity(intent);
+    }
+
+    private void loadPosts() {
+        postDatabase.child("posts").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                allPosts.clear();
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    Post post = postSnapshot.getValue(Post.class);
+                    if (post != null && currUser.getUscID().equals(post.getCreatedBy())) {
+                        allPosts.add(post);
+                    }
+                }
+
+                // Sort posts by timestamp (newest first)
+                Collections.sort(allPosts, new Comparator<Post>() {
+                    @Override
+                    public int compare(Post post1, Post post2) {
+                        if (post1.getTimestamp() == null || post2.getTimestamp() == null) {
+                            return 0;
+                        }
+                        return post2.getTimestamp().compareTo(post1.getTimestamp());
+                    }
+                });
+
+                postAdapter.setPosts(allPosts);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("MainActivity", "Error loading posts", databaseError.toException());
+                Toast.makeText(ProfileActivity.this,
+                        "Error loading posts: " + databaseError.getMessage(),
+                        Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
 

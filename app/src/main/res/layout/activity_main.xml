@@ -47,13 +47,14 @@
             <!-- Ranking/Subscriptions Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRankingSubscriptions"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ranking/Subscriptions"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginEnd="8dp"
+                android:textSize="12sp"
+                android:text="Ranking/\nSubscriptions"
                 app:layout_constraintEnd_toStartOf="@id/btnFavorites"
-                android:layout_marginEnd="8dp"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
             <!-- Favorites Button -->
             <com.google.android.material.button.MaterialButton
