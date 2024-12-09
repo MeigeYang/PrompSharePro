@@ -104,6 +104,30 @@ The following features should be tested to ensure the app functions as described
    - The main feed displays posts from all users, sorted by the newest first.
    - Posts include essential details (title, author, timestamp), allowing users to explore shared prompts effectively.
 
+### Improvement: 
+##### After our sprint plan, we have added four addition features
+
+   #### llm ranking
+   
+   Feature: Displays the average rating for each LLM type based on user ratings (out of five stars).
+   Rationale: Provides users with a quick overview of highly-rated LLMs.
+   
+   #### User Post History
+   
+   Feature: Lists all posts made by a user under their profile.
+   Rationale: Centralizes user activity tracking.
+   
+   #### Favorites/Collection List
+   
+   Feature: Allows users to "like" posts and save them to a collection accessible via their profile.
+   Rationale: Facilitates easy access to valuable content.
+   
+   #### Subscription Sharing Section
+
+   Feature: Enables users to share contact details to pool LLM subscription plans.
+   Rationale: Encourages collaboration and cost-saving among users.
+
+
 ---
 
 ## Troubleshooting
